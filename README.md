@@ -1,36 +1,134 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Creasume
 
-## Getting Started
+> The Resume for the Creator Economy — turn your social presence into a live professional profile.
 
-First, run the development server:
+## Stack
+
+- Next.js 16 · TypeScript strict · Tailwind CSS v4 · shadcn/ui
+- Supabase (Postgres + Auth + Storage) · Prisma v7 ORM · NextAuth.js v5
+- Instagram Graph API · YouTube Data + Analytics API v3
+- Recharts · Lucide React · date-fns · Zod · React Hook Form · dnd-kit
+
+---
+
+## Local setup
+
+### 1. Clone & install
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/Mitanshcodes/Creasume
+cd Creasume
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Set up Supabase
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Create a project at [supabase.com](https://supabase.com)
+2. Go to **Settings → Database → Connection string** and grab:
+   - **Transaction pooler** URL → `DATABASE_URL`
+   - **Session mode / direct** URL → `DIRECT_URL`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. Get API credentials
 
-## Learn More
+**Google OAuth (for sign-in + YouTube)**
+1. Go to [console.cloud.google.com](https://console.cloud.google.com)
+2. Create OAuth 2.0 credentials → Web application
+3. Add redirect URI: `http://localhost:3000/api/auth/callback/google`
+4. Enable **YouTube Data API v3** and **YouTube Analytics API**
 
-To learn more about Next.js, take a look at the following resources:
+**Meta / Instagram**
+1. Go to [developers.facebook.com](https://developers.facebook.com)
+2. Create an app → Consumer type
+3. Add Facebook Login product
+4. Add redirect URI: `http://localhost:3000/api/connections/instagram/callback`
+5. Add test users via **Roles → Test Users**
+6. Note: `instagram_manage_insights` requires Meta App Review before production
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 4. Create `.env.local`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+cp .env.example .env.local
+```
 
-## Deploy on Vercel
+Fill in all values. Generate secrets:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+# ENCRYPTION_KEY (32 bytes → 64 hex chars)
+openssl rand -hex 32
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# NEXTAUTH_SECRET
+openssl rand -base64 32
+
+# CRON_SECRET
+openssl rand -base64 32
+```
+
+### 5. Run migrations & seed
+
+```bash
+pnpm db:push       # push schema to Supabase (dev)
+pnpm db:seed       # create the demo creator at /demo
+```
+
+For production, use migrations:
+```bash
+pnpm db:migrate    # generate + apply migration
+```
+
+### 6. Start dev server
+
+```bash
+pnpm dev
+```
+
+Visit `http://localhost:3000` — the landing page. Visit `http://localhost:3000/demo` — the demo Influence Card.
+
+---
+
+## Project structure
+
+```
+src/
+├── app/
+│   ├── (marketing)/        # Landing page
+│   ├── (auth)/             # Login + signup
+│   ├── dashboard/          # Creator dashboard (auth-gated)
+│   ├── [username]/         # Public Influence Card
+│   └── api/                # API routes (auth, connections, cron)
+├── components/
+│   ├── ui/                 # shadcn components
+│   ├── influence-card/     # Public profile sections
+│   └── dashboard/          # Dashboard components
+└── lib/
+    ├── db.ts               # Prisma client singleton
+    ├── auth.ts             # NextAuth config
+    ├── env.ts              # Zod-validated env vars
+    ├── encryption.ts       # AES-256-GCM token encryption
+    ├── instagram.ts        # Instagram Graph API client
+    ├── youtube.ts          # YouTube Data + Analytics client
+    └── utils.ts            # Helpers (cn, formatCompact, timeAgo)
+```
+
+---
+
+## Deploy to Vercel
+
+1. Connect your GitHub repo to Vercel
+2. Add all env vars from `.env.example` in Vercel dashboard
+3. Vercel Cron is configured in `vercel.json` — fires daily at 03:00 UTC
+
+---
+
+## Development commands
+
+```bash
+pnpm dev            # start dev server
+pnpm build          # production build
+pnpm lint           # ESLint
+pnpm format         # Prettier
+pnpm type-check     # TypeScript strict check
+pnpm db:generate    # re-generate Prisma client
+pnpm db:migrate     # run migrations
+pnpm db:seed        # seed demo data
+pnpm db:studio      # open Prisma Studio
+```

@@ -1,0 +1,161 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── NextAuth required models ──────────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── Core models ──────────────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  name          String?
+  image         String?
+  password      String?
+  accounts      Account[]
+  sessions      Session[]
+  creator       Creator?
+  createdAt     DateTime  @default(now())
+}
+
+model Creator {
+  id                 String              @id @default(cuid())
+  userId             String              @unique
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  username           String              @unique
+  displayName        String
+  headline           String?
+  bio                String?             @db.Text
+  avatarUrl          String?
+  coverUrl           String?
+  location           String?
+  niches             String[]
+  contactEmail       String?
+  websiteUrl         String?
+  plan               Plan                @default(FREE)
+  isPublished        Boolean             @default(false)
+  usernameChangedAt  DateTime?
+  socialAccounts     SocialAccount[]
+  campaigns          Campaign[]
+  packages           Package[]
+  analyticsSnapshots AnalyticsSnapshot[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+}
+
+enum Plan {
+  FREE
+  PRO
+  PREMIUM
+}
+
+model SocialAccount {
+  id              String    @id @default(cuid())
+  creatorId       String
+  creator         Creator   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  platform        Platform
+  platformUserId  String
+  handle          String
+  accessTokenEnc  String    @db.Text
+  refreshTokenEnc String?   @db.Text
+  tokenExpiresAt  DateTime?
+  scope           String?
+  connectedAt     DateTime  @default(now())
+  lastSyncedAt    DateTime?
+
+  @@unique([creatorId, platform])
+}
+
+enum Platform {
+  INSTAGRAM
+  YOUTUBE
+}
+
+model AnalyticsSnapshot {
+  id             String   @id @default(cuid())
+  creatorId      String
+  creator        Creator  @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  platform       Platform
+  followers      Int
+  engagementRate Float?
+  avgLikes       Int?
+  avgComments    Int?
+  avgViews       Int?
+  totalPosts     Int?
+  audienceJson   Json?
+  topContentJson Json?
+  capturedAt     DateTime @default(now())
+
+  @@index([creatorId, platform, capturedAt])
+}
+
+model Campaign {
+  id           String    @id @default(cuid())
+  creatorId    String
+  creator      Creator   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  brandName    String
+  brandLogoUrl String?
+  title        String
+  description  String?   @db.Text
+  platform     Platform?
+  contentUrl   String?
+  thumbnailUrl String?
+  metricsJson  Json?
+  startedAt    DateTime?
+  endedAt      DateTime?
+  isFeatured   Boolean   @default(false)
+  order        Int       @default(0)
+  createdAt    DateTime  @default(now())
+}
+
+model Package {
+  id           String   @id @default(cuid())
+  creatorId    String
+  creator      Creator  @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  name         String
+  description  String?
+  priceCents   Int
+  currency     String   @default("USD")
+  deliverables String[]
+  order        Int      @default(0)
+}
