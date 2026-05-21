@@ -1,11 +1,11 @@
 "use client";
 
-import { MapPin, Mail, Globe, Share2, Copy, Check } from "lucide-react";
+import { MapPin, Mail, Globe, Share2, Check } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { cn, timeAgo } from "@/lib/utils";
+import { timeAgo } from "@/lib/utils";
 
 interface HeroProps {
   displayName: string;

@@ -1,6 +1,20 @@
 import type { Metadata } from "next";
-import { Inter, Geist_Mono } from "next/font/google";
+import { Syne, Space_Grotesk, Inter, Roboto_Mono } from "next/font/google";
 import "./globals.css";
+
+const syne = Syne({
+  variable: "--font-syne",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "600", "700", "800"],
+});
+
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["300", "400", "500", "600", "700"],
+});
 
 const inter = Inter({
   variable: "--font-inter",
@@ -8,9 +22,10 @@ const inter = Inter({
   display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const robotoMono = Roboto_Mono({
+  variable: "--font-roboto-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -37,8 +52,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${geistMono.variable} dark`} suppressHydrationWarning>
-      <body className="min-h-screen bg-background text-foreground antialiased">{children}</body>
+    <html
+      lang="en"
+      className={`${syne.variable} ${spaceGrotesk.variable} ${inter.variable} ${robotoMono.variable} dark`}
+      suppressHydrationWarning
+    >
+      <body className="min-h-screen bg-background text-foreground antialiased noise-overlay">
+        {children}
+      </body>
     </html>
   );
 }

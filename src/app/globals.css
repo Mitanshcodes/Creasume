@@ -7,9 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-inter);
+  --font-sans: var(--font-space-grotesk);
+  --font-mono: var(--font-roboto-mono);
+  --font-heading: var(--font-syne);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -44,110 +44,106 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 1.4);
   --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
 
-  /* Creasume brand gradient accent */
-  --color-brand-from: #6366f1;
-  --color-brand-to: #a855f7;
+  --color-brand-purple: #a855f7;
+  --color-brand-pink: #ec4899;
+  --color-brand-orange: #f97316;
+  --color-mint: #10b981;
 }
 
-/* Light mode */
-:root {
-  --background: oklch(0.99 0 0);
-  --foreground: oklch(0.12 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.12 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.12 0 0);
-  --primary: oklch(0.54 0.23 264);      /* indigo-600 */
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.96 0 0);
-  --secondary-foreground: oklch(0.2 0 0);
-  --muted: oklch(0.96 0 0);
-  --muted-foreground: oklch(0.5 0 0);
-  --accent: oklch(0.94 0.04 280);
-  --accent-foreground: oklch(0.2 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.9 0 0);
-  --input: oklch(0.9 0 0);
-  --ring: oklch(0.54 0.23 264);
-  --chart-1: oklch(0.54 0.23 264);
-  --chart-2: oklch(0.63 0.22 290);
-  --chart-3: oklch(0.72 0.18 310);
-  --chart-4: oklch(0.45 0.19 264);
-  --chart-5: oklch(0.38 0.15 264);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.97 0 0);
-  --sidebar-foreground: oklch(0.12 0 0);
-  --sidebar-primary: oklch(0.54 0.23 264);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.94 0.04 280);
-  --sidebar-accent-foreground: oklch(0.2 0 0);
-  --sidebar-border: oklch(0.9 0 0);
-  --sidebar-ring: oklch(0.54 0.23 264);
-}
-
-/* Dark mode (default theme for Creasume) */
+/* ─── Dark (Creasume default) ─────────────────────────────────────────────── */
+:root,
 .dark {
-  --background: oklch(0.09 0 0);
-  --foreground: oklch(0.97 0 0);
-  --card: oklch(0.13 0.005 264);
-  --card-foreground: oklch(0.97 0 0);
-  --popover: oklch(0.13 0.005 264);
-  --popover-foreground: oklch(0.97 0 0);
-  --primary: oklch(0.63 0.22 290);      /* purple-500 */
-  --primary-foreground: oklch(0.97 0 0);
-  --secondary: oklch(0.18 0.005 264);
-  --secondary-foreground: oklch(0.97 0 0);
-  --muted: oklch(0.18 0.005 264);
-  --muted-foreground: oklch(0.6 0 0);
-  --accent: oklch(0.22 0.02 280);
-  --accent-foreground: oklch(0.97 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 8%);
-  --input: oklch(1 0 0 / 10%);
-  --ring: oklch(0.63 0.22 290);
-  --chart-1: oklch(0.63 0.22 290);
-  --chart-2: oklch(0.54 0.23 264);
-  --chart-3: oklch(0.72 0.18 310);
-  --chart-4: oklch(0.45 0.19 264);
-  --chart-5: oklch(0.38 0.15 264);
-  --sidebar: oklch(0.11 0.005 264);
-  --sidebar-foreground: oklch(0.97 0 0);
-  --sidebar-primary: oklch(0.63 0.22 290);
-  --sidebar-primary-foreground: oklch(0.97 0 0);
-  --sidebar-accent: oklch(0.18 0.01 280);
-  --sidebar-accent-foreground: oklch(0.97 0 0);
-  --sidebar-border: oklch(1 0 0 / 8%);
-  --sidebar-ring: oklch(0.63 0.22 290);
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: rgba(255, 255, 255, 0.03);
+  --card-foreground: #ffffff;
+  --popover: #111111;
+  --popover-foreground: #ffffff;
+  --primary: #a855f7;
+  --primary-foreground: #ffffff;
+  --secondary: rgba(255, 255, 255, 0.06);
+  --secondary-foreground: #ffffff;
+  --muted: rgba(255, 255, 255, 0.06);
+  --muted-foreground: rgba(255, 255, 255, 0.45);
+  --accent: rgba(168, 85, 247, 0.15);
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --border: rgba(255, 255, 255, 0.06);
+  --input: rgba(255, 255, 255, 0.08);
+  --ring: #a855f7;
+  --chart-1: #a855f7;
+  --chart-2: #ec4899;
+  --chart-3: #10b981;
+  --chart-4: #f97316;
+  --chart-5: #3b82f6;
+  --radius: 0.75rem;
+  --sidebar: #0d0d0d;
+  --sidebar-foreground: rgba(255, 255, 255, 0.7);
+  --sidebar-primary: #a855f7;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgba(168, 85, 247, 0.12);
+  --sidebar-accent-foreground: #a855f7;
+  --sidebar-border: rgba(255, 255, 255, 0.06);
+  --sidebar-ring: #a855f7;
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
   body {
     @apply bg-background text-foreground antialiased;
+    font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
   }
-  html {
-    @apply font-sans;
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-syne), "Syne", system-ui, sans-serif;
   }
 }
 
-/* Creasume brand gradient */
+/* ─── Brand gradient (purple → pink → orange) ─────────────────────────────── */
 .brand-gradient {
-  background: linear-gradient(135deg, #6366f1, #a855f7);
+  background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f97316 100%);
 }
 
 .brand-gradient-text {
-  background: linear-gradient(135deg, #6366f1, #a855f7);
+  background: linear-gradient(90deg, #a855f7 0%, #ec4899 50%, #f97316 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* Live pulse animation */
+.brand-gradient-border {
+  position: relative;
+}
+.brand-gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #a855f7, #ec4899, #f97316);
+  z-index: -1;
+}
+
+/* ─── Card styles ─────────────────────────────────────────────────────────── */
+.card-dark {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 1rem;
+}
+
+/* ─── Noise texture overlay ───────────────────────────────────────────────── */
+.noise-overlay::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.025;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ─── Animations ──────────────────────────────────────────────────────────── */
 @keyframes live-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
@@ -155,4 +151,34 @@
 
 .live-dot {
   animation: live-pulse 2s ease-in-out infinite;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.marquee-track {
+  animation: marquee 25s linear infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* ─── Scrollbar ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
 }
