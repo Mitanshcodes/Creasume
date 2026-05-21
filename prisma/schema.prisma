@@ -72,6 +72,9 @@ model Creator {
   niches             String[]
   contactEmail       String?
   websiteUrl         String?
+  accentColor        String?
+  backgroundStyle    String?
+  fontPairing        String?
   plan               Plan                @default(FREE)
   isPublished        Boolean             @default(false)
   usernameChangedAt  DateTime?
