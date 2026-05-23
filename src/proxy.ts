@@ -5,6 +5,10 @@ export default auth((req) => {
   const { pathname } = req.nextUrl;
 
   const isAuthenticated = !!req.auth;
+  // Only consider a user "fully set up" if they have a creator profile in their token.
+  // Without this check, Google OAuth users (who have a session but no creator yet)
+  // would get bounced: /dashboard → /login → /dashboard → loop.
+  const hasCreator = !!(req.auth as { user?: { creatorId?: string } } | null)?.user?.creatorId;
   const isDashboard = pathname.startsWith("/dashboard");
   const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/signup");
 
@@ -14,7 +18,7 @@ export default auth((req) => {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (isAuthPage && isAuthenticated) {
+  if (isAuthPage && isAuthenticated && hasCreator) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 

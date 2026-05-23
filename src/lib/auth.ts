@@ -44,9 +44,31 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async jwt({ token, user }) {
       if (user?.id) {
         token.id = user.id;
-        const creator = await db.creator.findUnique({ where: { userId: user.id } });
-        token.creatorId = creator?.id;
-        token.username = creator?.username;
+        let creator = await db.creator.findUnique({ where: { userId: user.id } });
+
+        // Auto-create a Creator for OAuth sign-ins (Google etc.) that bypass signUpAction
+        if (!creator) {
+          const base = (user.email?.split("@")[0] ?? "creator")
+            .toLowerCase()
+            .replace(/[^a-z0-9]/g, "")
+            .slice(0, 20) || "creator";
+          let username = base;
+          let suffix = 1;
+          while (await db.creator.findUnique({ where: { username } })) {
+            username = `${base}${suffix++}`;
+          }
+          creator = await db.creator.create({
+            data: {
+              userId: user.id,
+              username,
+              displayName: user.name ?? "Creator",
+              isPublished: false,
+            },
+          });
+        }
+
+        token.creatorId = creator.id;
+        token.username = creator.username;
       }
       return token;
     },
