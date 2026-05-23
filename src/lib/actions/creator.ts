@@ -242,6 +242,98 @@ export async function deletePackage(id: string) {
   revalidatePath("/dashboard/edit");
 }
 
+// ─── Instagram sync ──────────────────────────────────────────────────────────
+
+export async function syncInstagram() {
+  const creatorId = await getCreatorId();
+
+  const account = await db.socialAccount.findUnique({
+    where: { creatorId_platform: { creatorId, platform: "INSTAGRAM" } },
+  });
+  if (!account) return { error: "Instagram not connected" };
+
+  const { decrypt } = await import("@/lib/encryption");
+  const { getInstagramProfile, getInstagramMedia, refreshLongLivedToken } = await import(
+    "@/lib/instagram"
+  );
+
+  let token = decrypt(account.accessTokenEnc);
+
+  // Refresh token if expiring within 7 days
+  if (account.tokenExpiresAt && account.tokenExpiresAt.getTime() - Date.now() < 7 * 86400 * 1000) {
+    const refreshed = await refreshLongLivedToken(token);
+    token = refreshed.access_token;
+    const { encrypt } = await import("@/lib/encryption");
+    await db.socialAccount.update({
+      where: { creatorId_platform: { creatorId, platform: "INSTAGRAM" } },
+      data: {
+        accessTokenEnc: encrypt(token),
+        tokenExpiresAt: new Date(Date.now() + refreshed.expires_in * 1000),
+      },
+    });
+  }
+
+  const [profile, media] = await Promise.all([
+    getInstagramProfile(token),
+    getInstagramMedia(token),
+  ]);
+
+  await db.socialAccount.update({
+    where: { creatorId_platform: { creatorId, platform: "INSTAGRAM" } },
+    data: { handle: profile.username, lastSyncedAt: new Date() },
+  });
+
+  const posts = media.filter((m) => m.like_count !== undefined || m.comments_count !== undefined);
+  const avgLikes =
+    posts.length > 0
+      ? Math.round(posts.reduce((s, m) => s + (m.like_count ?? 0), 0) / posts.length)
+      : null;
+  const avgComments =
+    posts.length > 0
+      ? Math.round(posts.reduce((s, m) => s + (m.comments_count ?? 0), 0) / posts.length)
+      : null;
+  const engagementRate =
+    profile.followers_count > 0 && avgLikes !== null && avgComments !== null
+      ? (avgLikes + avgComments) / profile.followers_count
+      : null;
+
+  const topContentJson = media.slice(0, 3).map((m) => ({
+    url: m.permalink,
+    thumbnail: m.media_url ?? m.thumbnail_url ?? null,
+    likes: m.like_count ?? 0,
+    comments: m.comments_count ?? 0,
+    caption: m.caption ?? "",
+  }));
+
+  await db.analyticsSnapshot.create({
+    data: {
+      creatorId,
+      platform: "INSTAGRAM",
+      followers: profile.followers_count,
+      totalPosts: profile.media_count,
+      avgLikes,
+      avgComments,
+      engagementRate,
+      topContentJson,
+    },
+  });
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/connections");
+  revalidatePath(`/${(await db.creator.findUnique({ where: { id: creatorId }, select: { username: true } }))?.username}`);
+
+  return { success: true };
+}
+
+export async function disconnectInstagram() {
+  const creatorId = await getCreatorId();
+  await db.socialAccount.delete({
+    where: { creatorId_platform: { creatorId, platform: "INSTAGRAM" } },
+  });
+  revalidatePath("/dashboard/connections");
+  revalidatePath("/dashboard");
+}
+
 export async function reorderPackages(orderedIds: string[]) {
   const creatorId = await getCreatorId();
   await db.$transaction(

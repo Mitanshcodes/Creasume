@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { RefreshCw, ExternalLink, Copy, Users, Eye, Image, TrendingUp, MessageSquare } from "lucide-react";
+import { ExternalLink, Copy, Users, Eye, Image, TrendingUp, MessageSquare } from "lucide-react";
 import StatCard from "@/components/dashboard/stat-card";
 import { InstagramIcon, TikTokIcon, YoutubeIcon } from "@/components/ui/brand-icons";
+import RefreshButton from "@/components/dashboard/refresh-button";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 
@@ -44,10 +45,7 @@ export default async function DashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <button className="flex items-center gap-2 border border-white/10 text-white/60 hover:text-white hover:border-white/20 text-sm px-4 py-2 rounded-xl transition-colors">
-            <RefreshCw className="h-4 w-4" />
-            Refresh Stats
-          </button>
+          <RefreshButton hasInstagram={!!igAccount} />
           <Link
             href={`/${creator.username}`}
             className="flex items-center gap-2 border border-white/10 text-white/60 hover:text-white hover:border-white/20 text-sm px-4 py-2 rounded-xl transition-colors"
