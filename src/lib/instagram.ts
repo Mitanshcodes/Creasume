@@ -4,7 +4,7 @@ export function getInstagramAuthUrl() {
   const params = new URLSearchParams({
     client_id: process.env.FACEBOOK_APP_ID!,
     redirect_uri: process.env.FACEBOOK_REDIRECT_URI!,
-    scope: "instagram_business_basic,instagram_manage_comments,instagram_business_manage_messages",
+    scope: "instagram_business_basic,instagram_business_manage_messages,instagram_business_manage_comments,instagram_business_content_publish,instagram_business_manage_insights",
     response_type: "code",
   });
   return `https://www.instagram.com/oauth/authorize?${params}`;
