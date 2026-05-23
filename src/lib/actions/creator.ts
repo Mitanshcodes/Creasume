@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { Platform } from "@/generated/prisma";
 
 async function getCreatorId(): Promise<string> {
   const session = await auth();
@@ -105,4 +106,148 @@ export async function updatePassword(currentPassword: string, newPassword: strin
   await db.user.update({ where: { id: session.user.id }, data: { password: hashed } });
 
   return { success: true };
+}
+
+// ─── Campaigns ──────────────────────────────────────────────────────────────
+
+export type CampaignData = {
+  brandName: string;
+  title: string;
+  description?: string;
+  platform?: "INSTAGRAM" | "YOUTUBE" | "";
+  metrics?: Record<string, number>;
+  thumbnailUrl?: string;
+  contentUrl?: string;
+  startedAt?: string;
+  endedAt?: string;
+  isFeatured?: boolean;
+};
+
+export async function addCampaign(data: CampaignData) {
+  const creatorId = await getCreatorId();
+
+  const agg = await db.campaign.aggregate({ where: { creatorId }, _max: { order: true } });
+
+  await db.campaign.create({
+    data: {
+      creatorId,
+      brandName: data.brandName,
+      title: data.title,
+      description: data.description || null,
+      platform: data.platform ? (data.platform as Platform) : null,
+      metricsJson: data.metrics ?? undefined,
+      thumbnailUrl: data.thumbnailUrl || null,
+      contentUrl: data.contentUrl || null,
+      startedAt: data.startedAt ? new Date(data.startedAt) : null,
+      endedAt: data.endedAt ? new Date(data.endedAt) : null,
+      isFeatured: data.isFeatured ?? false,
+      order: (agg._max.order ?? -1) + 1,
+    },
+  });
+
+  revalidatePath("/dashboard/edit");
+}
+
+export async function updateCampaign(id: string, data: CampaignData) {
+  const creatorId = await getCreatorId();
+
+  await db.campaign.update({
+    where: { id, creatorId },
+    data: {
+      brandName: data.brandName,
+      title: data.title,
+      description: data.description || null,
+      platform: data.platform ? (data.platform as Platform) : null,
+      metricsJson: data.metrics ?? undefined,
+      thumbnailUrl: data.thumbnailUrl || null,
+      contentUrl: data.contentUrl || null,
+      startedAt: data.startedAt ? new Date(data.startedAt) : null,
+      endedAt: data.endedAt ? new Date(data.endedAt) : null,
+      isFeatured: data.isFeatured ?? false,
+    },
+  });
+
+  revalidatePath("/dashboard/edit");
+}
+
+export async function deleteCampaign(id: string) {
+  const creatorId = await getCreatorId();
+  await db.campaign.delete({ where: { id, creatorId } });
+  revalidatePath("/dashboard/edit");
+}
+
+export async function toggleCampaignFeatured(id: string, isFeatured: boolean) {
+  const creatorId = await getCreatorId();
+  await db.campaign.update({ where: { id, creatorId }, data: { isFeatured } });
+  revalidatePath("/dashboard/edit");
+}
+
+export async function reorderCampaigns(orderedIds: string[]) {
+  const creatorId = await getCreatorId();
+  await db.$transaction(
+    orderedIds.map((id, index) =>
+      db.campaign.update({ where: { id, creatorId }, data: { order: index } })
+    )
+  );
+  revalidatePath("/dashboard/edit");
+}
+
+// ─── Packages ───────────────────────────────────────────────────────────────
+
+export type PackageData = {
+  name: string;
+  description?: string;
+  priceCents: number;
+  deliverables: string[];
+};
+
+export async function addPackage(data: PackageData) {
+  const creatorId = await getCreatorId();
+
+  const agg = await db.package.aggregate({ where: { creatorId }, _max: { order: true } });
+
+  await db.package.create({
+    data: {
+      creatorId,
+      name: data.name,
+      description: data.description || null,
+      priceCents: data.priceCents,
+      deliverables: data.deliverables,
+      order: (agg._max.order ?? -1) + 1,
+    },
+  });
+
+  revalidatePath("/dashboard/edit");
+}
+
+export async function updatePackage(id: string, data: PackageData) {
+  const creatorId = await getCreatorId();
+
+  await db.package.update({
+    where: { id, creatorId },
+    data: {
+      name: data.name,
+      description: data.description || null,
+      priceCents: data.priceCents,
+      deliverables: data.deliverables,
+    },
+  });
+
+  revalidatePath("/dashboard/edit");
+}
+
+export async function deletePackage(id: string) {
+  const creatorId = await getCreatorId();
+  await db.package.delete({ where: { id, creatorId } });
+  revalidatePath("/dashboard/edit");
+}
+
+export async function reorderPackages(orderedIds: string[]) {
+  const creatorId = await getCreatorId();
+  await db.$transaction(
+    orderedIds.map((id, index) =>
+      db.package.update({ where: { id, creatorId }, data: { order: index } })
+    )
+  );
+  revalidatePath("/dashboard/edit");
 }

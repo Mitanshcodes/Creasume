@@ -5,8 +5,8 @@ import Link from "next/link";
 import { Smartphone, Monitor, ExternalLink, Save, Check } from "lucide-react";
 import LivePreview from "@/components/dashboard/live-preview";
 import ProfileForm from "@/components/dashboard/profile-form";
-import PortfolioTab from "@/components/dashboard/portfolio-tab";
-import PackagesTab from "@/components/dashboard/packages-tab";
+import PortfolioTab, { type Campaign } from "@/components/dashboard/portfolio-tab";
+import PackagesTab, { type Package } from "@/components/dashboard/packages-tab";
 import DesignTab from "@/components/dashboard/design-tab";
 import { updateProfile, updateDesign } from "@/lib/actions/creator";
 
@@ -35,9 +35,17 @@ interface Props {
     engagementRate: number;
     avgViews: number;
   };
+  initialCampaigns: Campaign[];
+  initialPackages: Package[];
 }
 
-export default function EditProfileClient({ initialProfile, initialDesign, analytics }: Props) {
+export default function EditProfileClient({
+  initialProfile,
+  initialDesign,
+  analytics,
+  initialCampaigns,
+  initialPackages,
+}: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("Profile");
   const [previewMode, setPreviewMode] = useState<"phone" | "desktop">("phone");
   const [profile, setProfile] = useState(initialProfile);
@@ -125,14 +133,16 @@ export default function EditProfileClient({ initialProfile, initialDesign, analy
             Preview
           </Link>
 
-          <button
-            onClick={handleSave}
-            disabled={isPending}
-            className="flex items-center gap-2 brand-gradient text-white text-sm font-semibold px-5 py-2 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-60"
-          >
-            {saved ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}
-            {isPending ? "Saving…" : saved ? "Saved!" : "Save Changes"}
-          </button>
+          {(activeTab === "Profile" || activeTab === "Design") && (
+            <button
+              onClick={handleSave}
+              disabled={isPending}
+              className="flex items-center gap-2 brand-gradient text-white text-sm font-semibold px-5 py-2 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-60"
+            >
+              {saved ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}
+              {isPending ? "Saving…" : saved ? "Saved!" : "Save Changes"}
+            </button>
+          )}
         </div>
       </div>
 
@@ -152,8 +162,8 @@ export default function EditProfileClient({ initialProfile, initialDesign, analy
               analytics={analytics}
             />
           )}
-          {activeTab === "Portfolio" && <PortfolioTab />}
-          {activeTab === "Packages" && <PackagesTab />}
+          {activeTab === "Portfolio" && <PortfolioTab initialCampaigns={initialCampaigns} />}
+          {activeTab === "Packages" && <PackagesTab initialPackages={initialPackages} />}
           {activeTab === "Design" && (
             <DesignTab
               accentColor={design.accentColor}
