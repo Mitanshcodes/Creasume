@@ -7,20 +7,18 @@ datasource db {
   provider = "postgresql"
 }
 
-// ─── NextAuth required models ──────────────────────────────────────────────
-
 model Account {
   id                String  @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -43,8 +41,6 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// ─── Core models ──────────────────────────────────────────────────────────
-
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
@@ -52,20 +48,19 @@ model User {
   name          String?
   image         String?
   password      String?
-  accounts      Account[]
-  sessions      Session[]
-  creator       Creator?
   createdAt     DateTime  @default(now())
+  accounts      Account[]
+  creator       Creator?
+  sessions      Session[]
 }
 
 model Creator {
   id                 String              @id @default(cuid())
   userId             String              @unique
-  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   username           String              @unique
   displayName        String
   headline           String?
-  bio                String?             @db.Text
+  bio                String?
   avatarUrl          String?
   coverUrl           String?
   location           String?
@@ -78,46 +73,35 @@ model Creator {
   plan               Plan                @default(FREE)
   isPublished        Boolean             @default(false)
   usernameChangedAt  DateTime?
-  socialAccounts     SocialAccount[]
-  campaigns          Campaign[]
-  packages           Package[]
-  analyticsSnapshots AnalyticsSnapshot[]
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
-}
-
-enum Plan {
-  FREE
-  PRO
-  PREMIUM
+  analyticsSnapshots AnalyticsSnapshot[]
+  campaigns          Campaign[]
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  packages           Package[]
+  socialAccounts     SocialAccount[]
 }
 
 model SocialAccount {
   id              String    @id @default(cuid())
   creatorId       String
-  creator         Creator   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
   platform        Platform
   platformUserId  String
   handle          String
-  accessTokenEnc  String    @db.Text
-  refreshTokenEnc String?   @db.Text
+  accessTokenEnc  String
+  refreshTokenEnc String?
   tokenExpiresAt  DateTime?
   scope           String?
   connectedAt     DateTime  @default(now())
   lastSyncedAt    DateTime?
+  creator         Creator   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
   @@unique([creatorId, platform])
-}
-
-enum Platform {
-  INSTAGRAM
-  YOUTUBE
 }
 
 model AnalyticsSnapshot {
   id             String   @id @default(cuid())
   creatorId      String
-  creator        Creator  @relation(fields: [creatorId], references: [id], onDelete: Cascade)
   platform       Platform
   followers      Int
   engagementRate Float?
@@ -128,6 +112,7 @@ model AnalyticsSnapshot {
   audienceJson   Json?
   topContentJson Json?
   capturedAt     DateTime @default(now())
+  creator        Creator  @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
   @@index([creatorId, platform, capturedAt])
 }
@@ -135,11 +120,10 @@ model AnalyticsSnapshot {
 model Campaign {
   id           String    @id @default(cuid())
   creatorId    String
-  creator      Creator   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
   brandName    String
   brandLogoUrl String?
   title        String
-  description  String?   @db.Text
+  description  String?
   platform     Platform?
   contentUrl   String?
   thumbnailUrl String?
@@ -149,16 +133,28 @@ model Campaign {
   isFeatured   Boolean   @default(false)
   order        Int       @default(0)
   createdAt    DateTime  @default(now())
+  creator      Creator   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 }
 
 model Package {
   id           String   @id @default(cuid())
   creatorId    String
-  creator      Creator  @relation(fields: [creatorId], references: [id], onDelete: Cascade)
   name         String
   description  String?
   priceCents   Int
   currency     String   @default("USD")
   deliverables String[]
   order        Int      @default(0)
+  creator      Creator  @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+}
+
+enum Plan {
+  FREE
+  PRO
+  PREMIUM
+}
+
+enum Platform {
+  INSTAGRAM
+  YOUTUBE
 }
