@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 
 interface StatCardProps {
   label: string;
   value: number | string;
   caption: string;
-  icon: LucideIcon;
+  icon: ReactNode;
   prefix?: string;
   suffix?: string;
   isRaw?: boolean;
@@ -44,7 +44,7 @@ function useCountUp(target: number, duration = 1200) {
   return { current, ref };
 }
 
-export default function StatCard({ label, value, caption, icon: Icon, prefix = "", suffix = "", isRaw }: StatCardProps) {
+export default function StatCard({ label, value, caption, icon, prefix = "", suffix = "", isRaw }: StatCardProps) {
   const numericValue = typeof value === "number" ? value : 0;
   const { current, ref } = useCountUp(numericValue);
 
@@ -59,7 +59,7 @@ export default function StatCard({ label, value, caption, icon: Icon, prefix = "
       <div className="flex items-center justify-between">
         <span className="text-white/50 text-xs font-medium">{label}</span>
         <div className="w-8 h-8 rounded-lg bg-white/[0.04] flex items-center justify-center">
-          <Icon className="h-4 w-4 text-white/40" />
+          {icon}
         </div>
       </div>
       <p className="font-heading text-2xl font-bold text-white tracking-tight">

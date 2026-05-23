@@ -82,32 +82,32 @@ export default async function DashboardPage() {
           label="Followers"
           value={followers}
           caption="Total Audience"
-          icon={Users}
+          icon={<Users className="h-4 w-4 text-white/40" />}
         />
         <StatCard
           label="Profile Views"
           value={0}
           caption="Coming soon"
-          icon={Eye}
+          icon={<Eye className="h-4 w-4 text-white/40" />}
         />
         <StatCard
           label="Media Count"
           value={totalPosts}
           caption="Total Posts"
-          icon={Image}
+          icon={<Image className="h-4 w-4 text-white/40" />}
         />
         <StatCard
           label="Avg. Engagement"
           value={engagementRate > 0 ? `${engagementRate.toFixed(2)}%` : "—"}
           caption="Engagement Rate"
-          icon={TrendingUp}
+          icon={<TrendingUp className="h-4 w-4 text-white/40" />}
           isRaw
         />
         <StatCard
           label="Brand Inquiries"
           value={0}
           caption="Total Received"
-          icon={MessageSquare}
+          icon={<MessageSquare className="h-4 w-4 text-white/40" />}
         />
       </div>
 
